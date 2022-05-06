@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block css %}
+    <style>
+        input:focus, select:focus {
+            border: none !important;
+            border-bottom: 5px solid #4fade0 !important;
+        }
+
+        th {
+            color: gray;
+        }
+
+        thead, tbody {
+            display: block;
+        }
+
+        th, td {
+            width: 750px;
+        }
+
+        tbody {
+            height: 300px; /* Just for the demo          */
+            overflow-y: auto; /* Trigger vertical scroll    */
+            overflow-x: hidden; /* Hide the horizontal scroll */
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    {% csrf_token %}
+    <div class="container-fluid row">
+        <div class="col-md-4 col-sm-6 mt-3">
+            <form class="form-control">
+                <h2><span class="operatorname">Mobile</span> Recharge</h2>
+                <input class="form-check-input" type="radio" name="operatorname" value="simtype" id="prepaid" checked>
+                <label class="form-check-label" for="prepaid"> Prepaid</label>
+                <input class="form-check-input" type="radio" name="operatorname" value="simtype" id="postpaid">
+                <label class="form-check-label" for="postpaid"> Postpaid</label><br>
+                <label for="mobileno" class="form-label">Mobile Number</label>
+                <input id="mobileno" class="form-control">
+                <label for="operator" class="form-label">Operator</label>
+                <select class="form-select" id="operator">
+                    <option></option>
+                    <option value="Airtel">Airtel</option>
+                    <option value="Vodafone">Vodafone</option>
+                    <option value="BSNL">BSNL</option>
+                    <option value="JIO">JIO</option>
+                    <option value="MTNL">MTNL</option>
+                </select>
+                <label for="circle" class="form-label">Circle</label>
+                <select class="form-select" id="circle">
+                    <option></option>
+                    <option value="ALL Circle">All Circle</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Assam">Assam</option>
+                    <option value="Bihar/Jharkhand">Bihar/Jharkhand</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Delhi NCR">Delhi NCR</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Gujrat">Gujrat</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Jammu Kashmir">Jammu Kashmir</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Madhya Pradesh/Chhattisgarh">Madhya Pradesh/Chhattisgarh</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="North East">North East</option>
+                    <option value="Orissa">Orissa</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Rajashtan">Rajashtan</option>
+                    <option value="Tamilnadu">Tamilnadu</option>
+                    <option value="Telengana">Telengana</option>
+                    <option value="UP East">UP East</option>
+                    <option value="UP West">UP West</option>
+                    <option value="Uttrakhand">Uttrakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                </select>
+                <label for="amount" class="form-label">Amount</label>
+                <input id="amount" class="form-control">
+                <input type="button" value="Proceed to Recharge" class="btn btn-primary mt-3">
+            </form>
+        </div>
+        <div class="col-md-8 col-sm-6 mt-3 border" id="desc">
+            <table class="table table-hover text-center table-responsive">
+                <caption class="caption-top"><h3>Browse Plans for <span class="operatorname">Airtel</span></h3>
+                </caption>
+                <thead>
+                <tr>
+                    <th scope="col"><input value="Popular" type="button" class="btn rechargetype" name="rechargetype">
+                    </th>
+                    <th scope="col"><input value="Unlimited" type="button" class="btn rechargetype"
+                                           name="rechargetype"></th>
+                    <th scope="col"><input value="Data" type="button" class="btn rechargetype" name="rechargetype">
+                    </th>
+                    <th scope="col"><input value="Cricket" type="button" class="btn rechargetype"
+                                           name="rechargetype"></th>
+                    <th scope="col"><input value="Combo" type="button" class="btn rechargetype"
+                                           name="rechargetype"></th>
+                    <th scope="col"><input value="Talk-time" type="button" class="btn rechargetype" name="rechargetype">
+                    </th>
+                </tr>
+                <tr>
+                    <th scope="col">Circle</th>
+                    <th scope="col">Plan Type</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Validity</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        let data = '';
+        let plantypes = 'Popular'
+        let rechargetype = document.getElementsByClassName('rechargetype');
+        rechargetype[0].addEventListener('click', () => {
+            plantypes = 'Popular';
+            putdata(data, plantypes)
+        })
+        rechargetype[1].addEventListener('click', () => {
+            plantypes = 'Unlimited';
+            putdata(data, plantypes)
+        })
+        rechargetype[2].addEventListener('click', () => {
+            plantypes = 'Data';
+            putdata(data, plantypes)
+        })
+        rechargetype[3].addEventListener('click', () => {
+            plantypes = 'Cricket';
+            putdata(data, plantypes)
+        })
+        rechargetype[4].addEventListener('click', () => {
+            plantypes = 'Combo';
+            putdata(data, plantypes)
+        })
+        rechargetype[5].addEventListener('click', () => {
+            plantypes = 'Talktime';
+            putdata(data, plantypes)
+        })
+
+        function putdata(data, plantype) {
+            let tbody = document.getElementById('tbody');
+            tbody.innerHTML = ''
+            for (d of data) {
+                if (d['fields']['plans_type'] == plantype) {
+                    tbody.innerHTML += (`
+                            <tr>
+                    <td>${d['fields']['circle']}</td>
+                    <td>Recharge</td>
+                    <td>${d['fields']['data']}</td>
+                    <td>${d['fields']['validity']} Days</td>
+                    <td>${d['fields']['desc']}
+                    </td>
+                    <td>
+                        <button class="btn bg-primary text-white">Rs. ${d['fields']['price']}</button>
+                    </td>
+                </tr>`)
+                }
+            }
+        }
+
+        function getdata() {
+            let csrf = $("input[name=csrfmiddlewaretoken]").val();
+            let o = operator.value;
+            let c = circle.value;
+            if (o == '' || c == '') {
+            } else {
+                datas = {"csrfmiddlewaretoken": csrf, "o": o, "c": c}
+                $.ajax({
+                    type: 'post',
+                    url: '{% url 'Mobile:getdata' %}',
+                    data: datas,
+                    success: function (response) {
+                        console.log("Success");
+                        console.log(response['valid']);
+                        data = response['data']
+                        data = JSON.parse(data)
+                        putdata(data, plantype = 'Popular');
+                    }
+                })
+            }
+        }
+
+        let operator = document.getElementById('operator');
+        let circle = document.getElementById('circle');
+        operator.addEventListener('change', (e) => {
+            e.preventDefault();
+            getdata();
+        })
+        circle.addEventListener('change', (e) => {
+            e.preventDefault();
+            getdata();
+        })
+    </script>
+{% endblock %}
